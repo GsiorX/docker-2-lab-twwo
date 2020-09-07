@@ -11,7 +11,9 @@ services:
         ports:
             - ${SERVER_PORT}:${SERVER_PORT}
             - 9229:9229
-        command: npm run start:dev
+        command: yarn start:debug
+        links:
+            - mysql
         env_file:
             - .env
         networks:
@@ -20,7 +22,6 @@ services:
             - redis
             - mysql
     redis:
-        container_name: redis
         image: redis:5
         networks:
             - webnet
@@ -34,6 +35,8 @@ services:
             MYSQL_DATABASE: sermabud
             MYSQL_USER: root
             MYSQL_PASSWORD: root
+        networks:
+            - webnet
 networks:
     webnet:
 volumes:
