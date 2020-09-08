@@ -12,7 +12,6 @@ export class CreateUserDto {
     @MinLength(8)
     password: string;
 
-    // TODO enable this when default groups are implemented
-    // @IsNotEmpty()
+    @IsNotEmpty()
     group: Group
 }

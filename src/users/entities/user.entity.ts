@@ -18,7 +18,6 @@ export class User {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @ManyToOne(type => Group)
     @JoinColumn()
-    // TODO enable this when default groups are implemented
-    // @IsNotEmpty()
+    @IsNotEmpty()
     group: Group;
 }

@@ -7,12 +7,15 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {PaginationDto} from "../pagination.dto";
 import {PaginatedUsersResultDto} from "./dto/paginated-users-result.dto";
+import {Group} from "../groups/entities/group.entity";
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(Group)
+        private groupRepository: Repository<Group>,
     ) {
     }
 
@@ -28,9 +31,12 @@ export class UsersService {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
 
+        const defaultGroup = await this.groupRepository.findOne({name: 'Pracownik produkcyjny'});
+
         return await this.userRepository.save({
             login: createUserDto.login,
             password: hashedPassword,
+            group: defaultGroup,
         });
     }
 
