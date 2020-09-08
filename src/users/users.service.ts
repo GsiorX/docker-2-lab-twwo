@@ -41,6 +41,7 @@ export class UsersService {
     }
 
     async findAll(paginationDto: PaginationDto): Promise<PaginatedUsersResultDto> {
+        //Todo extract to paginationService?
         const skippedItems = (paginationDto.page - 1) * paginationDto.limit;
 
         const totalCount = await this.userRepository.count();

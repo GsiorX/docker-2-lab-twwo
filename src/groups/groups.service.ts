@@ -6,6 +6,8 @@ import {Repository} from "typeorm";
 import {Group} from "./entities/group.entity";
 import {groups} from "./entities/groups";
 import {IGroup} from "./interfaces/group.interface";
+import {PaginationDto} from "../pagination.dto";
+import {PaginatedGroupsResultDto} from "./dto/paginated-groups-result.dto";
 
 @Injectable()
 export class GroupsService implements OnApplicationBootstrap {
@@ -32,19 +34,33 @@ export class GroupsService implements OnApplicationBootstrap {
         return await this.groupRepository.save(createGroupDto);
     }
 
-    async findAll() {
-        return await this.groupRepository.find();
+    async findAll(paginationDto: PaginationDto): Promise<PaginatedGroupsResultDto> {
+        const skippedItems = (paginationDto.page - 1) * paginationDto.limit;
+
+        const totalCount = await this.groupRepository.count();
+        const groups = await this.groupRepository.createQueryBuilder()
+            .orderBy('createdAt', "DESC")
+            .offset(skippedItems)
+            .limit(paginationDto.limit)
+            .getMany();
+
+        return {
+            totalCount,
+            page: paginationDto.page,
+            limit: paginationDto.limit,
+            data: groups,
+        };
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} group`;
+    async findOne(id: number) {
+        return await this.groupRepository.findOneOrFail(id);
     }
 
-    update(id: number, updateGroupDto: UpdateGroupDto) {
-        return `This action updates a #${id} group`;
+    async update(id: number, updateGroupDto: UpdateGroupDto) {
+        return await this.groupRepository.save({...updateGroupDto, id});
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} group`;
+    async remove(id: number) {
+        return await this.groupRepository.delete(id);
     }
 }
