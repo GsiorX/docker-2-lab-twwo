@@ -1,4 +1,12 @@
-import {Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne} from 'typeorm';
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    JoinColumn,
+    ManyToOne,
+    CreateDateColumn,
+    UpdateDateColumn, DeleteDateColumn
+} from 'typeorm';
 import {Group} from "../../groups/entities/group.entity";
 import {IsNotEmpty} from "class-validator";
 
@@ -20,4 +28,13 @@ export class User {
     @JoinColumn()
     @IsNotEmpty()
     group: Group;
+
+    @CreateDateColumn()
+    created_at: Date;
+
+    @UpdateDateColumn()
+    updated_at: Date;
+
+    @DeleteDateColumn()
+    deleted_at: Date
 }
