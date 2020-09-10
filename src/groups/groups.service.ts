@@ -6,61 +6,49 @@ import {Repository} from "typeorm";
 import {Group} from "./entities/group.entity";
 import {groups} from "./entities/groups";
 import {IGroup} from "./interfaces/group.interface";
-import {PaginationDto} from "../pagination.dto";
-import {PaginatedGroupsResultDto} from "./dto/paginated-groups-result.dto";
+import {paginate, IPaginationOptions, Pagination} from "nestjs-typeorm-paginate";
 
 @Injectable()
 export class GroupsService implements OnApplicationBootstrap {
     constructor(
         @InjectRepository(Group)
-        private groupRepository: Repository<Group>,
+        private repository: Repository<Group>,
         private readonly logger: Logger,
     ) {
     }
 
     onApplicationBootstrap(): void {
         groups.map((group: IGroup) => {
-            this.groupRepository.findOne({name: group.name})
+            this.repository.findOne({name: group.name})
                 .then(dbGroup => {
                     if (!dbGroup) {
-                        this.groupRepository.save(group);
+                        this.repository.save(group);
                         this.logger.debug(group.name + ' created!');
                     }
                 }).catch(error => this.logger.error(error));
         })
     }
 
-    async create(createGroupDto: CreateGroupDto): Promise<any> {
-        return await this.groupRepository.save(createGroupDto);
+    async paginate(options: IPaginationOptions): Promise<Pagination<Group>> {
+        const queryBuilder = this.repository.createQueryBuilder()
+            .orderBy('created_at', "DESC");
+
+        return paginate<Group>(queryBuilder, options);
     }
 
-    async findAll(paginationDto: PaginationDto): Promise<PaginatedGroupsResultDto> {
-        const skippedItems = (paginationDto.page - 1) * paginationDto.limit;
-
-        const totalCount = await this.groupRepository.count();
-        const groups = await this.groupRepository.createQueryBuilder()
-            .orderBy('created_at', "DESC")
-            .offset(isNaN(skippedItems) ? 0 : skippedItems)
-            .limit(paginationDto.limit)
-            .getMany();
-
-        return {
-            totalCount,
-            page: paginationDto.page,
-            limit: paginationDto.limit,
-            data: groups,
-        };
+    async create(createGroupDto: CreateGroupDto): Promise<any> {
+        return await this.repository.save(createGroupDto);
     }
 
     async findOne(id: number) {
-        return await this.groupRepository.findOneOrFail(id);
+        return await this.repository.findOneOrFail(id);
     }
 
     async update(id: number, updateGroupDto: UpdateGroupDto) {
-        return await this.groupRepository.save({...updateGroupDto, id});
+        return await this.repository.save({...updateGroupDto, id});
     }
 
     async remove(id: number) {
-        return await this.groupRepository.delete(id);
+        return await this.repository.delete(id);
     }
 }

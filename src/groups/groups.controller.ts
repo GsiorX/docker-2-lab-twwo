@@ -3,8 +3,8 @@ import {GroupsService} from './groups.service';
 import {CreateGroupDto} from './dto/create-group.dto';
 import {UpdateGroupDto} from './dto/update-group.dto';
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
-import {PaginationDto} from "../pagination.dto";
-import {PaginatedGroupsResultDto} from "./dto/paginated-groups-result.dto";
+import {Pagination} from "nestjs-typeorm-paginate";
+import {Group} from "./entities/group.entity";
 
 @Controller('groups')
 @UseGuards(JwtAuthGuard)
@@ -18,13 +18,15 @@ export class GroupsController {
     }
 
     @Get()
-    async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedGroupsResultDto> {
-        paginationDto.page = Number(paginationDto.page);
-        paginationDto.limit = Number(paginationDto.limit);
+    async findAll(
+        @Query('page') page = 1,
+        @Query('limit') limit = 10
+    ): Promise<Pagination<Group>> {
+        limit = limit > 100 ? 100 : limit;
 
-        return this.groupsService.findAll({
-            ...paginationDto,
-            limit: paginationDto.limit > 10 || paginationDto.limit <= 0 ? 10 : paginationDto.limit,
+        return this.groupsService.paginate({
+            page,
+            limit,
         });
     }
 

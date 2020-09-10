@@ -24,7 +24,7 @@ export class User {
     password: string;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @ManyToOne(type => Group)
+    @ManyToOne(type => Group, {eager: true})
     @JoinColumn()
     @IsNotEmpty()
     group: Group;

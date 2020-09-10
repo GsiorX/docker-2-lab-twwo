@@ -2,8 +2,8 @@ import {Controller, Get, Post, Body, Put, Param, Delete, Query} from '@nestjs/co
 import {ButtonsService} from './buttons.service';
 import {CreateButtonDto} from './dto/create-button.dto';
 import {UpdateButtonDto} from './dto/update-button.dto';
-import {PaginationDto} from "../pagination.dto";
-import {PaginatedButtonsResultDto} from "./dto/paginated-buttons-result.dto";
+import {Pagination} from "nestjs-typeorm-paginate";
+import {Button} from "./entities/button.entity";
 
 @Controller('buttons')
 export class ButtonsController {
@@ -16,13 +16,15 @@ export class ButtonsController {
     }
 
     @Get()
-    async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedButtonsResultDto> {
-        paginationDto.page = Number(paginationDto.page);
-        paginationDto.limit = Number(paginationDto.limit);
+    async findAll(
+        @Query('page') page = 1,
+        @Query('limit') limit = 10
+    ): Promise<Pagination<Button>> {
+        limit = limit > 100 ? 100 : limit;
 
-        return this.buttonsService.findAll({
-            ...paginationDto,
-            limit: paginationDto.limit > 10 || paginationDto.limit <= 0 ? 10 : paginationDto.limit,
+        return this.buttonsService.paginate({
+            page,
+            limit,
         });
     }
 

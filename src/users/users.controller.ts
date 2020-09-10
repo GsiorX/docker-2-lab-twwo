@@ -1,11 +1,10 @@
-import {Body, Controller, Delete, Get, Logger, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
 import {UsersService} from "./users.service";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {User} from "./entities/user.entity";
-import {PaginationDto} from "../pagination.dto";
-import {PaginatedUsersResultDto} from "./dto/paginated-users-result.dto";
+import {Pagination} from "nestjs-typeorm-paginate";
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -19,13 +18,15 @@ export class UsersController {
     }
 
     @Get()
-    async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedUsersResultDto> {
-        paginationDto.page = Number(paginationDto.page);
-        paginationDto.limit = Number(paginationDto.limit);
+    async findAll(
+        @Query('page') page = 1,
+        @Query('limit') limit = 10
+    ): Promise<Pagination<User>> {
+        limit = limit > 100 ? 100 : limit;
 
-        return this.usersService.findAll({
-            ...paginationDto,
-            limit: paginationDto.limit > 10 || paginationDto.limit <= 0 ? 10 : paginationDto.limit,
+        return this.usersService.paginate({
+            page,
+            limit,
         });
     }
 

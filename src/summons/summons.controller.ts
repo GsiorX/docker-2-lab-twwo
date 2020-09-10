@@ -3,9 +3,8 @@ import {SummonsService} from './summons.service';
 import {CreateSummonDto} from './dto/create-summon.dto';
 import {UpdateSummonDto} from './dto/update-summon.dto';
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
-import {PaginationDto} from "../pagination.dto";
 import {Summon} from "./entities/summon.entity";
-import {PaginatedSummonsResultDto} from "./dto/paginated-summons-result.dto";
+import {Pagination} from "nestjs-typeorm-paginate";
 
 @Controller('summons')
 @UseGuards(JwtAuthGuard)
@@ -19,13 +18,15 @@ export class SummonsController {
     }
 
     @Get()
-    async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedSummonsResultDto> {
-        paginationDto.page = Number(paginationDto.page);
-        paginationDto.limit = Number(paginationDto.limit);
+    async findAll(
+        @Query('page') page = 1,
+        @Query('limit') limit = 10
+    ): Promise<Pagination<Summon>> {
+        limit = limit > 100 ? 100 : limit;
 
-        return this.summonsService.findAll({
-            ...paginationDto,
-            limit: paginationDto.limit > 10 || paginationDto.limit <= 0 ? 10 : paginationDto.limit,
+        return this.summonsService.paginate({
+            page,
+            limit,
         });
     }
 
