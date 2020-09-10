@@ -24,7 +24,7 @@ export class GroupsController {
 
         return this.groupsService.findAll({
             ...paginationDto,
-            limit: paginationDto.limit > 10 ? 10 : paginationDto.limit,
+            limit: paginationDto.limit > 10 || paginationDto.limit <= 0 ? 10 : paginationDto.limit,
         });
     }
 

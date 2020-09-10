@@ -26,7 +26,7 @@ export class GroupsService implements OnApplicationBootstrap {
                         this.groupRepository.save(group);
                         this.logger.debug(group.name + ' created!');
                     }
-                }).catch(error => this.logger.debug(error));
+                }).catch(error => this.logger.error(error));
         })
     }
 
@@ -39,8 +39,8 @@ export class GroupsService implements OnApplicationBootstrap {
 
         const totalCount = await this.groupRepository.count();
         const groups = await this.groupRepository.createQueryBuilder()
-            .orderBy('createdAt', "DESC")
-            .offset(skippedItems)
+            .orderBy('created_at', "DESC")
+            .offset(isNaN(skippedItems) ? 0 : skippedItems)
             .limit(paginationDto.limit)
             .getMany();
 

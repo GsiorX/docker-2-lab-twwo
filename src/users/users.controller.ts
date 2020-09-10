@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Logger, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
 import {UsersService} from "./users.service";
 import {JwtAuthGuard} from "../auth/guards/jwt-auth.guard";
 import {CreateUserDto} from "./dto/create-user.dto";
@@ -25,7 +25,7 @@ export class UsersController {
 
         return this.usersService.findAll({
             ...paginationDto,
-            limit: paginationDto.limit > 10 ? 10 : paginationDto.limit,
+            limit: paginationDto.limit > 10 || paginationDto.limit <= 0 ? 10 : paginationDto.limit,
         });
     }
 

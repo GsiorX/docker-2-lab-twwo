@@ -1,26 +1,52 @@
 import {Injectable} from '@nestjs/common';
 import {CreateButtonDto} from './dto/create-button.dto';
 import {UpdateButtonDto} from './dto/update-button.dto';
+import {InjectRepository} from "@nestjs/typeorm";
+import {Button} from "./entities/button.entity";
+import {Repository} from "typeorm";
+import {PaginationDto} from "../pagination.dto";
+import {PaginatedButtonsResultDto} from "./dto/paginated-buttons-result.dto";
+import {UpdateGroupDto} from "../groups/dto/update-group.dto";
 
 @Injectable()
 export class ButtonsService {
-    create(createButtonDto: CreateButtonDto) {
-        return 'This action adds a new button';
+    constructor(
+        @InjectRepository(Button)
+        private buttonRepository: Repository<Button>
+    ) {
     }
 
-    findAll() {
-        return `This action returns all buttons`;
+    async create(createGroupDto: CreateButtonDto): Promise<any> {
+        return await this.buttonRepository.save(createGroupDto);
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} button`;
+    async findAll(paginationDto: PaginationDto): Promise<PaginatedButtonsResultDto> {
+        const skippedItems = (paginationDto.page - 1) * paginationDto.limit;
+
+        const totalCount = await this.buttonRepository.count();
+        const buttons = await this.buttonRepository.createQueryBuilder()
+            .orderBy('created_at', "DESC")
+            .offset(isNaN(skippedItems) ? 0 : skippedItems)
+            .limit(paginationDto.limit)
+            .getMany();
+
+        return {
+            totalCount,
+            page: paginationDto.page,
+            limit: paginationDto.limit,
+            data: buttons,
+        };
     }
 
-    update(id: number, updateButtonDto: UpdateButtonDto) {
-        return `This action updates a #${id} button`;
+    async findOne(id: number) {
+        return await this.buttonRepository.findOneOrFail(id);
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} button`;
+    async update(id: number, updateGroupDto: UpdateGroupDto) {
+        return await this.buttonRepository.save({...updateGroupDto, id});
+    }
+
+    async remove(id: number) {
+        return await this.buttonRepository.delete(id);
     }
 }

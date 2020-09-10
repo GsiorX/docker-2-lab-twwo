@@ -26,7 +26,7 @@ export class SummonsService {
 
         const totalCount = await this.summonRepository.count();
         const summons = await this.summonRepository.createQueryBuilder()
-            .orderBy('createdAt', "DESC")
+            .orderBy('created_at', "DESC")
             .offset(skippedItems)
             .limit(paginationDto.limit)
             .getMany();
@@ -54,6 +54,6 @@ export class SummonsService {
         summon.deleted_by = user;
         await this.summonRepository.save({...summon, id});
 
-        return await this.summonRepository.delete(id);
+        return await this.summonRepository.softDelete(id);
     }
 }

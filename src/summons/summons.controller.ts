@@ -25,7 +25,7 @@ export class SummonsController {
 
         return this.summonsService.findAll({
             ...paginationDto,
-            limit: paginationDto.limit > 10 ? 10 : paginationDto.limit,
+            limit: paginationDto.limit > 10 || paginationDto.limit <= 0 ? 10 : paginationDto.limit,
         });
     }
 

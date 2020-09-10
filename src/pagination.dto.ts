@@ -1,4 +1,4 @@
 export class PaginationDto {
-    page: number
-    limit: number
+    page = 1;
+    limit = 10;
 }
