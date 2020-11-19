@@ -21,10 +21,6 @@ services:
         depends_on:
             - redis
             - mysql
-    redis:
-        image: redis:5
-        networks:
-            - webnet
     mysql:
         image: mysql:5.7
         volumes:

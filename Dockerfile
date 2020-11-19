@@ -5,8 +5,8 @@ COPY ./yarn.lock ./
 COPY ./.env.example ./.env
 RUN yarn install
 COPY . .
-RUN yarn start:dev
 EXPOSE 3000
+CMD ["yarn", "start:prod"]
 
 
 FROM node:14-alpine
