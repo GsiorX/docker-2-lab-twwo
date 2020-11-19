@@ -2,9 +2,10 @@ FROM node:14 AS development
 WORKDIR /usr/src/app
 COPY ./package.json ./
 COPY ./yarn.lock ./
+COPY ./.env.example ./.env
 RUN yarn install
 COPY . .
-RUN yarn build
+RUN yarn start:dev
 
 
 FROM node:14-alpine
